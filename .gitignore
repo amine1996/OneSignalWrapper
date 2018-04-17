@@ -1,0 +1,17 @@
+#Scripts
+*.sh
+
+#Package lock node file
+package-lock.json
+
+#JSDoc out folder
+/out/*
+
+#Node modules folder
+/node_modules/*
+
+#VSCode configuration folder
+/.vscode/*
+
+#Credential file
+example/mydata.js
