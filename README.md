@@ -11,6 +11,10 @@ To install it :
 - npm install
 - Use the OneSignalWrapper.js file in your project
 
+To generate doc (JSDoc) : 
+- jsdoc OneSignalWrapper.js (Public functions only)
+- jsdoc --private OneSignalWrapper.js
+
 To run the example on your server, first set your application id and authorization header in the ./example/data.js file then:
 
 - cd OneSignalWrapper
