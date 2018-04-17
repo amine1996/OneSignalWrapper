@@ -7,20 +7,27 @@ A server using the One Signal SDK and Wrapper can be found in the example folder
 
 To install it :
 
-- cd OneSignalWrapper
-- npm install
-- Use the OneSignalWrapper.js file in your project
+```
+cd OneSignalWrapper
+npm install
+```
+
+Use the OneSignalWrapper.js file in your project
 
 To generate doc (JSDoc) : 
-- jsdoc OneSignalWrapper.js (Public functions only)
-- jsdoc --private OneSignalWrapper.js
+```
+jsdoc OneSignalWrapper.js (Public functions only)
+jsdoc --private OneSignalWrapper.js
+```
 
 To run the example on your server, first set your application id and authorization header in the ./example/data.js file then:
 
-- cd OneSignalWrapper
-- npm install
-- cd example
-- node myServ.js
+```
+cd OneSignalWrapper
+npm install
+cd example
+node myServ.js
+```
 
 Go to localhost:8080 in your browser.
 
