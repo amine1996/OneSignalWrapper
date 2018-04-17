@@ -25,6 +25,7 @@ To run the example on your server, first set your application id and authorizati
 ```
 cd OneSignalWrapper
 npm install
+npm install socket.io
 cd example
 node myServ.js
 ```
