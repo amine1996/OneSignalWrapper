@@ -5,8 +5,7 @@
   "main": "OneSignalWrapper.js",
   "dependencies": {
     "request": "^2.85.0",
-    "request-promise": "^4.2.2",
-    "socket.io": "^2.1.0"
+    "request-promise": "^4.2.2"
   },
   "devDependencies": {},
   "scripts": {
