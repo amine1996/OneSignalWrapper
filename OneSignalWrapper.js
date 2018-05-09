@@ -26,6 +26,7 @@ const notificationEndpoint = "https://onesignal.com/api/v1/notifications";
   * @type {string}
   * @private
   */
+
 const playerEndpoint = "https://onesignal.com/api/v1/players/";
 
 /**
@@ -174,6 +175,72 @@ exports.sendNotificationToMultID = function (notificationText, ids) {
     return createNotificationPromise(notificationObject);   
 }
 
+/**
+ *  Send a notification to a multiple One Signal devices.
+ * @param {string} notificationText - Displayed text in the notification
+ * @param {string[]} usernames - Array of assigned usernames to the targeted devices
+ * @example
+ * //Will display a stringified object containing the id of the notification and the number of recipients.
+ * sendNotificationToMultUsername("Hello World", ["username1","username2"]).then( function (data) {
+ *      console.log("One Signal response " + data);
+ * });
+ * @returns {Promise} A promise that returns a parsed JSON response containing One Signal response.
+ */
+exports.sendNotificationToMultUsername = function (notificationText, usernames)
+{
+    if (!isConfigured()) {
+        throw new Error(configurationError);
+    }
+
+    const notificationObject = createUsernameMessage(notificationText,usernames);
+
+    return createNotificationPromise(notificationObject);
+}
+
+/**
+ *  Send a notification to a multiple One Signal devices.
+ * @param {string} notificationText - Displayed text in the notification
+ * @param {string} username - Username assigned to the targeted device
+ * @example
+ * //Will display a stringified object containing the id of the notification and the number of recipients.
+ * sendNotificationToUsername("Hello World", "solouser").then( function (data) {
+ *      console.log("One Signal response " + data);
+ * });
+ * @returns {Promise} A promise that returns a parsed JSON response containing One Signal response.
+ */
+exports.sendNotificationToUsername = function (notificationText, username)
+{
+    if (!isConfigured()) {
+        throw new Error(configurationError);
+    }
+
+    const notificationObject = createUsernameMessage(notificationText,[username]);
+
+    return createNotificationPromise(notificationObject);
+}
+
+/**
+ *  Send a notification to a multiple One Signal devices.
+ * @param {string} username - Username to assign to the device
+ * @param {string} id - Id of the targeted device
+ * @example
+ * //Will display a stringified object containing the success state of the request.
+ * assignUsernameToID("UsernameOrEmail", "deviceID").then( function (data) {
+ *      console.log("One Signal response " + data);
+ * });
+ * @returns {Promise} A promise that returns a parsed JSON response containing One Signal response.
+ */
+exports.assignUsernameToID = function (username, id) {
+
+    if (!isConfigured()) {
+        throw new Error(configurationError);
+    }
+
+    const updateObject = createUpdateUsernameMessage(username);
+
+    return createUpdateUsernamePromise(id,updateObject);
+}
+
 /**********************************/
 /**** Module private functions ****/
 /**********************************/
@@ -191,7 +258,7 @@ function isConfigured() {
  *  Create message object to be sent as a notification targeting segments.
  * @private
  * @param {string} content  Text content of the notification
- * @param {string[]} Array of targeted segments
+ * @param {string[]} segments Array of targeted segments
  * @returns {string} Notification stringified object.
  */
 function createSegmentMessage(content, segments) {
@@ -206,10 +273,10 @@ function createSegmentMessage(content, segments) {
 }
 
 /**
- *  Create message object to be sent as a notification targeting devices.
+ * Create message object to be sent as a notification targeting devices.
  * @private
  * @param {string} content  Text content of the notification
- * @param {string[]} Array of targeted devices
+ * @param {string[]} ids Array of targeted devices
  * @returns {string} Notification stringified object.
  */
 function createDeviceMessage(content, ids)
@@ -225,12 +292,68 @@ function createDeviceMessage(content, ids)
 }
 
 /**
+ * Create message object to be sent as a notification targeting devices with specific usernames.
+ * @private
+ * @param {string} content  Text content of the notification
+ * @param {string[]} usernames Array of targeted username tags
+ * @returns {string} Notification stringified object.
+ */
+function createUsernameMessage(content, usernames)
+{
+    let tags = []
+
+    usernames.forEach(function(x) {
+
+        const tag = {
+            field : "tag",
+            key : "username",
+            value : x
+        };
+
+        const operator = {
+            operator : "OR"
+        };
+
+
+        tags.push(tag);
+        tags.push(operator);
+    });
+
+    tags.pop();
+
+    const message = {
+        app_id : appId,
+        contents : { "en" : content},
+        filters : tags
+    }
+
+    return JSON.stringify(message);
+}
+
+/**
+ * Create message object to be sent as a notification targeting devices with specific usernames.
+ * @private
+ * @param {string} playerId Player ID of the device to update
+ * @param {string} username Username to assign
+ * @returns {string} Update tag stringified object.
+ */
+function createUpdateUsernameMessage(username) {
+
+    const message = {
+        app_id : appId,
+        tags : {"username" : username}
+    }
+
+    return JSON.stringify(message);
+}
+
+/**
  *  Create option object to be sent with the notification request.
  * @private
  * @param {Object} content Notification object
  * @returns {Object} Option object with headers, uri and body set.
  */
-function createRequestOptions(content) {
+function createNotificationOptions(content) {
 
     const headers = {
         "Content-Type": "application/json; charset=utf-8",
@@ -245,6 +368,30 @@ function createRequestOptions(content) {
     };
 
     return options;
+}
+
+/**
+ *  Create option object to be sent with the notification request.
+ * @private
+ * @param {string} playerId PlayerId of the targeted device
+ * @param {Object} content Update object    
+ * @returns {Object} Option object with headers, uri and body set.
+ */
+function createUpdateOptions(playerId, content) {
+
+    const headers = {
+        "Content-Type": "application/json; charset=utf-8",
+        "Authorization": authorizationHeader
+    };
+
+    const options = {
+        uri : playerEndpoint+playerId,
+        body : content,
+        headers : headers,
+        method : "PUT"
+    };
+
+    return options;   
 }
 
 /**
@@ -276,12 +423,26 @@ function createPromiseRequest(options) {
 /**
  *  Create request promise with notification object set.
  * @private
- * @param {Object} Notification object to be sent
+ * @param {Object} notificationObject Object to be sent
  * @returns {Promise} Request promise returning response on .then.
  */
 function createNotificationPromise(notificationObject) {
 
-    const requestOptions = createRequestOptions(notificationObject);
+    const requestOptions = createNotificationOptions(notificationObject);
+
+    return createPromiseRequest(requestOptions);
+}
+
+/**
+ *  Create request promise with notification object set.
+ * @private
+ * @param {string} playerId PlayerId of the targeted device
+ * @param {Object} updateObject Object to be sent
+ * @returns {Promise} Request promise returning response on .then.
+ */
+function createUpdateUsernamePromise(playerId,updateObject) {
+
+    const requestOptions = createUpdateOptions(playerId,updateObject);
 
     return createPromiseRequest(requestOptions);
 }

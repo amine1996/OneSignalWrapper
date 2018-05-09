@@ -15,6 +15,7 @@ npm install
 Use the OneSignalWrapper.js file in your project
 
 To generate doc (JSDoc) : 
+
 ```
 jsdoc OneSignalWrapper.js (Public functions only)
 jsdoc --private OneSignalWrapper.js

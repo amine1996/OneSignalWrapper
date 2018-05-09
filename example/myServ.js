@@ -4,7 +4,7 @@ const fs = require("fs");
 
 //One Signal Wrapper
 const wrapper = require('../OneSignalWrapper.js')
-const credentials = require('./data.js');
+const credentials = require('./mydata.js');
 
 console.log(credentials);
 console.log(credentials.appId);
@@ -21,6 +21,20 @@ function log(text) {
 }
 
 //Send a notification to all devices using wrapper
+function handleAssignUsername(username, id) {
+  wrapper.assignUsernameToID(username,id).then(function (result) {
+    log(result);
+  })
+}
+
+function handleSendUsernames(usernameString) {
+  const usernames = usernameString.split(";");
+
+  wrapper.sendNotificationToMultUsername("Hello to usernames "+usernames,usernames).then(function (result) {
+    log(result);
+  });
+}
+
 function handleSendNotifAll(message) {
   wrapper.sendNotificationToAll(message).then(function (result) {
     log(result);
@@ -29,7 +43,7 @@ function handleSendNotifAll(message) {
 
 //Send a notification to multiple IDs using wrapper
 function handleSendNotifIds(idString) {
-  let ids = idString.split(";");
+  const ids = idString.split(";");
 
   wrapper.sendNotificationToMultID("Hello to IDs "+ids,ids).then(function (result) {
     log(result);
@@ -38,7 +52,7 @@ function handleSendNotifIds(idString) {
 
 //Send a notification to multiple segments using wrapper
 function handleSendNotifSegments(segmentString) {
-  let segments = segmentString.split(";");
+  const segments = segmentString.split(";");
 
   wrapper.sendNotificationToMultSegments("Hello to segments "+segments,segments).then(function (result) {
     log(result);
@@ -61,7 +75,7 @@ function handleKnownUser(userId) {
     userIds.push(userId);
   }
 
-  wrapper.sendNotificationToID("hello " + userId, userId).then(function (result) {
+  wrapper.sendNotificationToID("Hello " + userId, userId).then(function (result) {
     log(result);
   });
 }
@@ -75,7 +89,7 @@ function handleNewUser(userId) {
     userIds.push(userId);
   }
 
-  wrapper.sendNotificationToID("welcome " + userId, userId).then(function (result) {
+  wrapper.sendNotificationToID("Welcome " + userId, userId).then(function (result) {
     log(result);
   });  
 }
@@ -114,6 +128,10 @@ fs.readFile('index.html', function (err, html) {
     socket.on('newUserId', handleNewUser);
 
     socket.on('userId', handleKnownUser);
+
+    socket.on('sendAssignUsername', handleAssignUsername);
+
+    socket.on('sendNotifUsername', handleSendUsernames);
 
   });
 });

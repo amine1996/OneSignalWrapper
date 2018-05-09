@@ -15,30 +15,46 @@
   <!-- Form notif all -->
   <form id="all">
     <input type="text" name="notifTextAll">
-    <input type="button" value="send Notification to everyone" onclick="sendNotifAll() ">
+    <input type="button" value="Send Notification to everyone" onclick="sendNotifAll() ">
   </form>
 
   <!-- Form notif ID -->
   <form id="id">
     <input type="text" name="notifTextId">
-    <input type="button" value="send Notification to one or multiple IDs (separated by ;)" onclick="sendNotifId() ">
+    <input type="button" value="Send Notification to one or multiple IDs (separated by ;)" onclick="sendNotifId() ">
   </form>
 
   <!-- Form notif segment -->
   <form id="segment">
     <input type="text" name="notifTextSegment">
-    <input type="button" value="send Notification to one or multiple segment (separated by ;)" onclick="sendNotifSegment() ">
+    <input type="button" value="Send Notification to one or multiple segment (separated by ;)" onclick="sendNotifSegment() ">
   </form>
 
-    <!-- Form notif saved -->
+  <!-- Form notif saved -->
   <form id="saved">
-    <input type="button" value="send notif to all users who connected since server runtime." onclick="sendNotifSaved() ">
+    <input type="button" value="Send notif to all users who connected since server runtime." onclick="sendNotifSaved() ">
   </form>
+
+  <!-- Form notif assign username -->
+  <form id="assign">
+    <input type="text" name="notifAssignUsername">
+    <input type="button" value="Assign username to currentid" onclick="sendAssignUsername() ">
+  </form>
+
+  <!-- Form notif username -->
+  <form id="username">
+    <input type="text" name="notifTextUsername">
+    <input type="button" value="Send notif to usernames (separated by ;)" onclick="sendNotifUsername() " >
+  </form>
+
+
 
   <script>
-    var socket = io.connect();
+    const socket = io.connect();
 
-    var OneSignal = window.OneSignal || [];
+    const OneSignal = window.OneSignal || [];
+
+    var currentUserId;
 
     //Prompt user
     OneSignal.push(function () {
@@ -51,9 +67,12 @@
     OneSignal.push(function () {
       OneSignal.on('subscriptionChange', function (isSubscribed) {
         OneSignal.getUserId(function (userId) {
+
           socket.emit("newUserId", userId);
+          currentUserId = userId;
           document.getElementById("advice").innerHTML = "";
           console.log("User accepted push notifications");
+
         });
       });
     });
@@ -75,6 +94,7 @@
             OneSignal.push(function () {
               OneSignal.getUserId(function (userId) {
                 socket.emit("userId", userId);
+                currentUserId = userId;
               });
             });
 
@@ -98,6 +118,17 @@
 
     function sendNotifSaved() {
       socket.emit("sendNotifSaved");
+    }
+
+    function sendAssignUsername() {
+      if(currentUserId)
+        socket.emit("sendAssignUsername", document.getElementsByName("notifAssignUsername")[0].value, currentUserId);
+      else
+        console.log("No current user id set")
+    }
+
+    function sendNotifUsername() {
+      socket.emit("sendNotifUsername", document.getElementsByName("notifTextUsername")[0].value);
     }
 
   </script>
