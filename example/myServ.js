@@ -4,7 +4,7 @@ const fs = require("fs");
 
 //One Signal Wrapper
 const wrapper = require('../OneSignalWrapper.js')
-const credentials = require('./mydata.js');
+const credentials = require('./data.js');
 
 console.log(credentials);
 console.log(credentials.appId);
