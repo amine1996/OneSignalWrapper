@@ -7,17 +7,27 @@ A server using the One Signal SDK and Wrapper can be found in the example folder
 
 To install it :
 
+Fetch the repo :
 ```
 cd OneSignalWrapper
 npm install
+```
+
+Or use npm :
+```
+npm i onesignalwrapper
 ```
 
 Use the OneSignalWrapper.js file in your project
 
 To generate doc (JSDoc) : 
 
+For public functions only :
 ```
-jsdoc OneSignalWrapper.js (Public functions only)
+jsdoc OneSignalWrapper.js
+```
+For all functions (including private functions) :
+```
 jsdoc --private OneSignalWrapper.js
 ```
 
