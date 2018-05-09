@@ -14,4 +14,5 @@ package-lock.json
 /.vscode/*
 
 #Credential file
-example/mydata.js
+example/server/mydata.js
+example/client/myconfig.js

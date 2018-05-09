@@ -1,10 +1,12 @@
 const http = require('http');
 const url = require('url');
 const fs = require("fs");
+const path = require('path');
 
 //One Signal Wrapper
-const wrapper = require('../OneSignalWrapper.js')
+const wrapper = require('../../OneSignalWrapper.js')
 const credentials = require('./data.js');
+
 
 console.log(credentials);
 console.log(credentials.appId);
@@ -95,21 +97,58 @@ function handleNewUser(userId) {
 }
 
 //Main
-fs.readFile('index.html', function (err, html) {
 
-  if (err) {
-    throw err;
-  }
+var server = http.createServer(function (req, res) {
 
-  var server = http.createServer(function (req, res) {
-    var page = url.parse(req.url).pathname;
-    res.writeHead(200, { "Content-Type": "text/html" });
-    res.end(html);
+  var page = url.parse(req.url).pathname;
+
+
+  // parse URL
+  const parsedUrl = url.parse(req.url);
+  // extract URL path
+  let pathname = `.${parsedUrl.pathname}`;
+  // based on the URL path, extract the file extention. e.g. .js, .doc, ...
+  const ext = path.parse(pathname).ext;
+  // maps file extention to MIME typere
+  const map = {
+    '.ico': 'image/x-icon',
+    '.html': 'text/html',
+    '.js': 'text/javascript',
+    '.json': 'application/json',
+    '.css': 'text/css',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.wav': 'audio/wav',
+    '.mp3': 'audio/mpeg',
+    '.svg': 'image/svg+xml',
+    '.pdf': 'application/pdf',
+    '.doc': 'application/msword'
+  };
+
+  pathname = "../client"+pathname.substr(1);
+  fs.exists(pathname, function (exist) {
+    if(!exist) {
+      // if the file is not found, return 404
+      res.statusCode = 404;
+      res.end(`File ${pathname} not found!`);
+      return;
+    }
+
+    // if is a directory search for index file matching the extention
+    if (fs.statSync(pathname).isDirectory()) pathname += '/index' + ext;
+
+    // read file from file system
+    fs.readFile(pathname, function(err, data){
+      if(err){
+        res.statusCode = 500;
+        res.end(`Error getting the file: ${err}.`);
+      } else {
+        // if the file is found, set Content-type and send data
+        res.setHeader('Content-type', map[ext] || 'text/plain' );
+        res.end(data);
+      }
+    });
   });
-
-  server.listen(8080);
-
-  log("Server running")
 
   //Socket handling
   var io = require('socket.io').listen(server);
@@ -136,4 +175,4 @@ fs.readFile('index.html', function (err, html) {
   });
 });
 
-
+server.listen(8080);
