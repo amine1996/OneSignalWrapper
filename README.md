@@ -9,6 +9,7 @@ To install it :
 
 Fetch the repo :
 ```
+git clone https://github.com/amine1996/OneSignalWrapper
 cd OneSignalWrapper
 npm install
 ```
