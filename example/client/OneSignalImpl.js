@@ -21,6 +21,7 @@ OneSignal.push(function () {
         document.getElementById("advice").innerHTML = "";
         console.log("User accepted push notifications");
         });
+         
     });
 });
 
